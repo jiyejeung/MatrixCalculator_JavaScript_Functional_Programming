@@ -1,28 +1,40 @@
 (() => {
 	'use strict';
-	const $ = selector => document.querySelector(selector);
 
+	// element tool
+
+	const $ = selector => document.querySelector(selector);
+	
 	const $$ = selectors => document.querySelectorAll(selectors);
+
+	// handler
 
 	let createMatrixHandler = true;
 
+	// modal
+
 	const printModal = message => {
-		console.log('modal' + message);
+		$('.divModalWrapperContainer').style.display = 'flex';
+		$('.divModalText').textContent = message;
+		createMatrixHandler = false;
 	};
 
 	const deleteModal = () => {
-		createMatrixHandler = true;
+		$('.iDeleteModal').addEventListener('click', () => {
+			$('.divModalWrapperContainer').style.display = 'none';
+			createMatrixHandler = true;
+		});
 	};
+
+	// createMatrix
 
 	const confirmBeforeCreateNormalMatrix = index => {
 		if ($$('.inputNormalMatrixRow')[index].value == '' || $$('.inputNormalMatrixCol')[index].value == '') {
 			index && printModal('두 번째 행렬을 만들기 위해서 값이 반드시 존재해야함');
 			!index && printModal('첫 번째 행렬을 만들기 위해서 값이 반드시 존재해야함');
-			createMatrixHandler = false;
 		}
 		if (createMatrixHandler && (!/[1-9]/.test($$('.inputNormalMatrixRow')[index].value) || !/[1-9]/.test($$('.inputNormalMatrixCol')[index].value))) {
 			printModal('행렬을 만들기 위해서 1 ~ 9까지의 숫자만을 입력하여 주세요');
-			createMatrixHandler = false;
 		}
 	};
 
@@ -86,6 +98,7 @@
 	};
 
 	const main = () => {
+		deleteModal();
 		clickButtonCreateNormalMatrix();
 		clickButtonRandomNormalMatrixContainer();
 		clickButtonDeleteNormalMatrixContainer();
