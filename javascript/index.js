@@ -4,7 +4,7 @@
 	// element tool
 
 	const $ = selector => document.querySelector(selector);
-	
+
 	const $$ = selectors => document.querySelectorAll(selectors);
 
 	// handler
@@ -77,8 +77,22 @@
 		);
 	};
 
+	const generateRandomNum = () => {
+		return Math.floor(Math.random() * 2) ? Math.floor(Math.random() * 100) : -Math.floor(Math.random() * 100);
+	};
+
+	const printRandomNum = index =>
+		void $$('.divDisplayMatrixContainer')
+			[index].querySelectorAll('input')
+			.forEach(input => void (input.value = generateRandomNum()));
+
 	const clickButtonRandomNormalMatrixContainer = () => {
-		$$('.buttonRandomNormalMatrixContainer').forEach((button, index) => void button.addEventListener('click', () => {}));
+		$$('.buttonRandomNormalMatrixContainer').forEach(
+			(button, index) =>
+				void button.addEventListener('click', () => {
+					printRandomNum(index);
+				})
+		);
 	};
 
 	const clickButtonDeleteNormalMatrixContainer = () => {
