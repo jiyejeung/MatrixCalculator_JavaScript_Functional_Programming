@@ -9,20 +9,20 @@
 
 	// handler
 
-	let createMatrixHandler = true;
+	let matrixHandler = true;
 
 	// modal
 
 	const printModal = message => {
 		$('.divModalWrapperContainer').style.display = 'flex';
 		$('.divModalText').textContent = message;
-		createMatrixHandler = false;
+		matrixHandler = false;
 	};
 
 	const deleteModal = () => {
 		$('.iDeleteModal').addEventListener('click', () => {
 			$('.divModalWrapperContainer').style.display = 'none';
-			createMatrixHandler = true;
+			matrixHandler = true;
 		});
 	};
 
@@ -33,13 +33,13 @@
 			index && printModal('두 번째 행렬을 만들기 위해서 값이 반드시 존재해야함');
 			!index && printModal('첫 번째 행렬을 만들기 위해서 값이 반드시 존재해야함');
 		}
-		if (createMatrixHandler && (!/[1-9]/.test($$('.inputNormalMatrixRow')[index].value) || !/[1-9]/.test($$('.inputNormalMatrixCol')[index].value))) {
+		if (matrixHandler && (!/[1-9]/.test($$('.inputNormalMatrixRow')[index].value) || !/[1-9]/.test($$('.inputNormalMatrixCol')[index].value))) {
 			printModal('행렬을 만들기 위해서 1 ~ 9까지의 숫자만을 입력하여 주세요');
 		}
 	};
 
 	const printInputMatrixItem = index => {
-		if (!createMatrixHandler) return;
+		if (!matrixHandler) return;
 
 		const rowValue = +$$('.inputNormalMatrixRow')[index].value;
 		const colValue = +$$('.inputNormalMatrixCol')[index].value;
@@ -51,7 +51,7 @@
 	};
 
 	const hiddenButtonCreateNormalMatrix = index => {
-		if (!createMatrixHandler) return;
+		if (!matrixHandler) return;
 
 		$$('.buttonCreateNormalMatrix')[index].style.display = 'none';
 		$$('.buttonRandomNormalMatrixContainer')[index].style.display = 'inline-block';
@@ -59,7 +59,7 @@
 	};
 
 	const setInputNormalMatrixRowAndColReadOnly = index => {
-		if (!createMatrixHandler) return;
+		if (!matrixHandler) return;
 
 		$$('.inputNormalMatrixRow')[index].setAttribute('readOnly', 'readOnly');
 		$$('.inputNormalMatrixCol')[index].setAttribute('readOnly', 'readOnly');
@@ -126,12 +126,88 @@
 		);
 	};
 
+	const confirmExistInputs = () => {
+		Array.from($$('.divDisplayMatrixContainer')).some(
+			divDisplayMatrixContainer => divDisplayMatrixContainer?.querySelector('input') === null && matrixHandler && printModal('연산을 위해서는 반드시 행렬을 생성해야합니다.')
+		);
+	};
+
+	const confirmSameRowAndCol = () => {
+		matrixHandler &&
+			($$('.inputNormalMatrixRow')[0].value !== $$('.inputNormalMatrixRow')[1].value || $$('.inputNormalMatrixCol')[0].value !== $$('.inputNormalMatrixCol')[1].value) &&
+			printModal('행과 열의 갯수를 같게 입력해주세요');
+	};
+
+	const confirmEmptyInputValues = () => {
+		matrixHandler &&
+			$$('.divDisplayMatrixContainer').forEach(divDisplayMatrixContainer => {
+				Array.from(divDisplayMatrixContainer.querySelectorAll('input')).some(input => input.value === '' && printModal('연산을 위해서는 반드시 행렬 안에 값이 존재해야합니다.'));
+			});
+	};
+
+	const confirmNumInputValues = () => {
+		matrixHandler &&
+			$$('.divDisplayMatrixContainer').forEach(divDisplayMatrixContainer => {
+				Array.from(divDisplayMatrixContainer.querySelectorAll('input')).some(input => !/^-?\d{1,2}$/g.test(input.value) && printModal('-99부터 99까지의 숫자만 입력해주세요.'));
+			});
+	};
+
+	const calcPlusInputValues = () => {
+		const firstValues = Array.from($$('.divDisplayMatrixContainer')[0].querySelectorAll('input')).map(input => +input.value);
+		const secondValues = Array.from($$('.divDisplayMatrixContainer')[1].querySelectorAll('input')).map(input => +input.value);
+
+		return firstValues.map((firstValue, index) => firstValue + secondValues[index]);
+	};
+
+	const calcMinusInputValues = () => {
+		const firstValues = Array.from($$('.divDisplayMatrixContainer')[0].querySelectorAll('input')).map(input => +input.value);
+		const secondValues = Array.from($$('.divDisplayMatrixContainer')[1].querySelectorAll('input')).map(input => +input.value);
+
+		return firstValues.map((firstValue, index) => firstValue - secondValues[index]);
+	};
+
+	const printCalcPlusInputMatrixItem = () => {
+		if (matrixHandler) {
+			const resultValues = calcPlusInputValues();
+			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly >'));
+			calcInputs.forEach(arr => arr.push('<br>'));
+
+			$('.divDisplayCalcMatrixContainer').innerHTML = calcInputs.flat().join('');
+
+			$$('.inputCalcMatrixItem').forEach((input, index) => (input.value = resultValues[index]));
+		}
+	};
+
+	const printCalcMinusInputMatrixItem = () => {
+		if (matrixHandler) {
+			const resultValues = calcMinusInputValues();
+			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly >'));
+			calcInputs.forEach(arr => arr.push('<br>'));
+
+			$('.divDisplayCalcMatrixContainer').innerHTML = calcInputs.flat().join('');
+
+			$$('.inputCalcMatrixItem').forEach((input, index) => (input.value = resultValues[index]));
+		}
+	};
+
 	const clickButtonCalcPlus = () => {
-		$('.buttonCalcPlus').addEventListener('click', () => {});
+		$('.buttonCalcPlus').addEventListener('click', () => {
+			confirmExistInputs();
+			confirmSameRowAndCol();
+			confirmEmptyInputValues();
+			confirmNumInputValues();
+			printCalcPlusInputMatrixItem();
+		});
 	};
 
 	const clickButtonCalcMinus = () => {
-		$('.buttonCalcMinus').addEventListener('click', () => {});
+		$('.buttonCalcMinus').addEventListener('click', () => {
+			confirmExistInputs();
+			confirmSameRowAndCol();
+			confirmEmptyInputValues();
+			confirmNumInputValues();
+			printCalcMinusInputMatrixItem();
+		});
 	};
 
 	const clickButtonCalcMultiply = () => {
