@@ -44,7 +44,7 @@
 		const rowValue = +$$('.inputNormalMatrixRow')[index].value;
 		const colValue = +$$('.inputNormalMatrixCol')[index].value;
 
-		const inputArr = new Array(rowValue).fill(0).map(() => new Array(colValue).fill(0).map(() => '<input class="inputMatrixItem" value="0" maxLength="3">'));
+		const inputArr = new Array(rowValue).fill(0).map(() => new Array(colValue).fill(0).map(() => '<input class="inputMatrixItem" value="0" maxLength="3" />'));
 		inputArr.forEach(arr => void arr.push('<br>'));
 
 		$$('.divDisplayMatrixContainer')[index].innerHTML = inputArr.flat().join('');
@@ -138,6 +138,10 @@
 			printModal('행과 열의 갯수를 같게 입력해주세요');
 	};
 
+	const confirmSameFirstRowAndSecondCol = () => {
+		matrixHandler && $$('.inputNormalMatrixRow')[0].value !== $$('.inputNormalMatrixCol')[1].value && printModal('첫번째 행렬의 행의 값과 두번째 행렬의 열의 값을 같게 입력해주세요.');
+	};
+
 	const confirmEmptyInputValues = () => {
 		matrixHandler &&
 			$$('.divDisplayMatrixContainer').forEach(divDisplayMatrixContainer => {
@@ -166,10 +170,31 @@
 		return firstValues.map((firstValue, index) => firstValue - secondValues[index]);
 	};
 
+	const calcMultiplyInputValues = () => {
+		let firstIndex = -1;
+		let secondIndex = -1;
+		let firstValues = new Array(+$$('.inputNormalMatrixRow')[0].value).fill(0).map(() => new Array(+$$('.inputNormalMatrixCol')[0].value).fill(0));
+		firstValues = firstValues.map(arr =>
+			arr.map(() => {
+				firstIndex++;
+				return +$$('.divDisplayMatrixContainer')[0].querySelectorAll('input')[firstIndex].value;
+			})
+		);
+		let secondValues = new Array(+$$('.inputNormalMatrixRow')[1].value).fill(0).map(() => new Array(+$$('.inputNormalMatrixCol')[1].value).fill(0));
+		secondValues = secondValues.map(arr =>
+			arr.map(() => {
+				secondIndex++;
+				return +$$('.divDisplayMatrixContainer')[1].querySelectorAll('input')[secondIndex].value;
+			})
+		);
+
+		return firstValues.map(firstRow => secondValues[0].map((_, index01) => firstRow.reduce((pre, cur, index02) => pre + cur * secondValues[index02][index01], 0))).flat();
+	};
+
 	const printCalcPlusInputMatrixItem = () => {
 		if (matrixHandler) {
 			const resultValues = calcPlusInputValues();
-			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly >'));
+			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly />'));
 			calcInputs.forEach(arr => arr.push('<br>'));
 
 			$('.divDisplayCalcMatrixContainer').innerHTML = calcInputs.flat().join('');
@@ -181,7 +206,19 @@
 	const printCalcMinusInputMatrixItem = () => {
 		if (matrixHandler) {
 			const resultValues = calcMinusInputValues();
-			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly >'));
+			const calcInputs = new Array(+$('.inputNormalMatrixRow').value).fill(0).map(() => new Array(+$('.inputNormalMatrixCol').value).fill('<input class="inputCalcMatrixItem" readOnly />'));
+			calcInputs.forEach(arr => arr.push('<br>'));
+
+			$('.divDisplayCalcMatrixContainer').innerHTML = calcInputs.flat().join('');
+
+			$$('.inputCalcMatrixItem').forEach((input, index) => (input.value = resultValues[index]));
+		}
+	};
+
+	const printCalcMultiplyInputMatrixItem = () => {
+		if (matrixHandler) {
+			const resultValues = calcMultiplyInputValues();
+			const calcInputs = new Array(+$$('.inputNormalMatrixRow')[0].value).fill(0).map(() => new Array(+$$('.inputNormalMatrixCol')[1].value).fill('<input class="inputCalcMatrixItem" readOnly />'));
 			calcInputs.forEach(arr => arr.push('<br>'));
 
 			$('.divDisplayCalcMatrixContainer').innerHTML = calcInputs.flat().join('');
@@ -211,7 +248,13 @@
 	};
 
 	const clickButtonCalcMultiply = () => {
-		$('.buttonCalcMultiply').addEventListener('click', () => {});
+		$('.buttonCalcMultiply').addEventListener('click', () => {
+			confirmExistInputs();
+			confirmSameFirstRowAndSecondCol();
+			confirmEmptyInputValues();
+			confirmNumInputValues();
+			printCalcMultiplyInputMatrixItem();
+		});
 	};
 
 	const main = () => {
