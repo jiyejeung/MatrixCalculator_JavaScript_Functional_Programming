@@ -1,17 +1,11 @@
 (() => {
 	'use strict';
 
-	// element tool
-
 	const $ = selector => document.querySelector(selector);
 
 	const $$ = selectors => document.querySelectorAll(selectors);
 
-	// handler
-
 	let matrixHandler = true;
-
-	// modal
 
 	const printModal = message => {
 		$('.divModalWrapperContainer').style.display = 'flex';
@@ -25,8 +19,6 @@
 			matrixHandler = true;
 		});
 	};
-
-	// createMatrix
 
 	const confirmBeforeCreateNormalMatrix = index => {
 		if ($$('.inputNormalMatrixRow')[index].value == '' || $$('.inputNormalMatrixCol')[index].value == '') {
